@@ -1,4 +1,5 @@
 const express = require('express')
+const httpAttach = require('http-attach')
 
 
 module.exports = class API {
@@ -6,43 +7,41 @@ module.exports = class API {
     this.chrome = chrome
   }
 
-  createHandler() {
-    this.app = express()
-
-    this.app.get('/chrome', (req, res) => {
+  configure(app) {
+    app.get('/chrome', (req, res) => {
       res.send(this.chrome.toObject())
     })
 
 
-    this.app.get('/chrome/windows', (req, res) => {
+    app.get('/chrome/windows', (req, res) => {
       res.send(this.chrome.getWindows())
     })
 
 
-    this.app.get('/chrome/windows/:windowId', (req, res) => {
+    app.get('/chrome/windows/:windowId', (req, res) => {
       res.send(this.chrome.getWindow(req.params.windowId))
     })
 
 
-    this.app.get('/chrome/tabs/:tabId', (req, res) => {
+    app.get('/chrome/tabs/:tabId', (req, res) => {
       res.send(this.chrome.getTab(req.params.tabId))
     })
 
 
-    this.app.get('/chrome/windows/:windowId/tabs', (req, res) => {
+    app.get('/chrome/windows/:windowId/tabs', (req, res) => {
       res.send(this.chrome.getTabsIn(req.params.windowId))
     })
 
 
-    this.app.get('/chrome/windows/:windowId/tabs/:tabId', (req, res) => {
+    app.get('/chrome/windows/:windowId/tabs/:tabId', (req, res) => {
       res.send(this.chrome.getTab(req.params.tabId))
-    })
-
-    return this.app
+    })    
   }
-}
 
+  attachTo(httpServer) {
+    const app = express()
+    this.configure(app)
 
-module.exports = {
-  createHandler
+    httpAttach(httpServer, app)
+  }
 }

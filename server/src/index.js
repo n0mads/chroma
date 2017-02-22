@@ -1,7 +1,7 @@
 const http = require('http')
 
 const Chrome  = require('./Chrome')
-const API     = require('./Api')
+const API     = require('./API')
 const Sockets = require('./Sockets')
 
 
@@ -9,8 +9,9 @@ const chrome = new Chrome()
 const api = new API(chrome)
 const sockets = new Sockets(chrome)
 
+const server = http.createServer()
 
-const server = http.createServer(api.createHandler())
+api.attachTo(server)
 sockets.attachTo(server)
 
 

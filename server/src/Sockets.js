@@ -6,10 +6,8 @@ module.exports = class Sockets {
     this.chrome = chrome
   }
 
-  attachTo(httpServer) {
-    this.io = socketIO(httpServer)
-
-    this.io.on('connection', (client) => {
+  configure(io) {
+    io.on('connection', (client) => {
       console.log('Chrome extension connected')
 
       let updateTimer
@@ -26,7 +24,10 @@ module.exports = class Sockets {
       updateTimer = setInterval(requestUpdate, 2000)
       requestUpdate()
     })
+  }
 
-    return this.io
+  attachTo(httpServer) {
+    const io = socketIO(httpServer)
+    this.configure(io)
   }
 }
