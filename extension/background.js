@@ -1,14 +1,26 @@
+let socket
 
 
-chrome.browserAction.onClicked.addListener(function(tab) {
-  const socket = io.connect('http://localhost:3000')
+function connect() {
+  console.log("Connecting to server")
+  socket = io.connect('http://localhost:3000')
 
   socket.on('getState', function() {
+    console.log("Sending state to server")
     getState().then(state => socket.emit('getState:response', state))
   })
 
-  console.log("Chroma started")
-});
+  socket.on('disconnect', function() {
+    // SocketIO will automatically attempt to reconnect
+    console.log("Disconnected. Auto-reconnecting...")
+  })
+}
+
+
+chrome.browserAction.onClicked.addListener(function(tab) {
+  console.log("Started")
+  connect()
+})
 
 
 

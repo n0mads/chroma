@@ -77,12 +77,22 @@ const chrome = new Chrome()
 io.on('connection', function(client) {
   console.log('Chrome extension connected')
 
+  let updateTimer
+
+  function requestUpdate() {
+    client.emit('getState')
+  }
+
   client.on('getState:response', function(state) {
     chrome.replaceState(state)
-    console.log(chrome.toJSON())
   })
 
-  client.emit('getState')
+  client.on('disconnect', function() {
+    clearInterval(updateTimer)
+  })
+
+  updateTimer = setInterval(requestUpdate, 2000)
+  requestUpdate()
 })
 
 
