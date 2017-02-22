@@ -8,40 +8,111 @@ const server = http.createServer(app)
 const io     = socketIO(server)
 
 
-// class Chrome {
-//   constructor() {
-//     this.windows = {}
-//   }
+function valuesOf(object) {
+  return Object.keys(object).map(key => object[key])
+}
 
-//   updateAll(overview) {
-//     this.windows = {}
-//     overview.
-//   }
-// }
+
+class Chrome {
+  constructor() {
+    this.lastUpdate = null
+    this.windowsById = null
+    this.tabsById = null
+  }
+
+  replaceState(state) {
+    this.lastUpdate = state.timestamp
+    this.windowsById = {}
+    this.tabsById = {}
+
+    for (let win of state.windows) { 
+      this.windowsById[win.id] = Object.assign({}, win)
+
+      for (let tab of win.tabs) {
+        this.tabsById[tab.id] = Object.assign({}, tab)
+      }
+    }
+  }
+
+  getWindows() {
+    return valuesOf(this.windowsById)
+  }
+
+  getTabs() {
+    return valuesOf(this.tabsById)
+  }
+
+  getWindow(id) {
+    return this.windowsById[id]
+  }
+
+  getTab(id) {
+    return this.tabsById[id]
+  }
+
+  getTabsIn(windowOrId) {
+    const windowId = (typeof windowOrId === 'object')
+      ? windowOrId.id
+      : windowOrId
+
+    return this.windowsById[windowId].tabs
+  }
+
+  toObject() {
+    return {
+      lastUpdate: this.lastUpdate,
+      windows: valuesOf(this.windowsById)
+    }
+  }
+
+  toJSON() {
+    return JSON.stringify(this.toObject(), null, 2)
+  }
+}
+
+
+const chrome = new Chrome()
 
 
 io.on('connection', function(client) {
   console.log('Chrome extension connected')
 
-  client.on('updateWindow', function(wnd) {
-    wnd.tabs = {}
-    chrome.windows[wnd.id] = wnd
+  client.on('getState:response', function(state) {
+    chrome.replaceState(state)
+    console.log(chrome.toJSON())
   })
 
-  client.on('updateTab', function(tab) {
-    chrome.windows[tab.windowId].tabs[tab.id] = tab
-  })
+  client.emit('getState')
+})
 
-  client.on('updateAll', function(all) {
-    console.log(JSON.stringify(all, null, 2))
-  })
 
-  client.emit('getOverview')
+app.get('/chrome', function(req, res) {
+  res.send(chrome.toObject())
 })
 
 
 app.get('/chrome/windows', function(req, res) {
-  res.send(chrome.windows)
+  res.send(chrome.getWindows())
+})
+
+
+app.get('/chrome/windows/:windowId', function(req, res) {
+  res.send(chrome.getWindow(req.params.windowId))
+})
+
+
+app.get('/chrome/tabs/:tabId', function(req, res) {
+  res.send(chrome.getTab(req.params.tabId))
+})
+
+
+app.get('/chrome/windows/:windowId/tabs', function(req, res) {
+  res.send(chrome.getTabsIn(req.params.windowId))
+})
+
+
+app.get('/chrome/windows/:windowId/tabs/:tabId', function(req, res) {
+  res.send(chrome.getTab(req.params.tabId))
 })
 
 

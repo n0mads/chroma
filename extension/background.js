@@ -3,8 +3,8 @@
 chrome.browserAction.onClicked.addListener(function(tab) {
   const socket = io.connect('http://localhost:3000')
 
-  socket.on('getOverview', function() {
-    getOverview().then(overview => socket.emit('updateAll', overview))
+  socket.on('getState', function() {
+    getState().then(state => socket.emit('getState:response', state))
   })
 
   console.log("Chroma started")
@@ -12,7 +12,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 
 
 
-function getOverview() {
+function getState() {
   return getExtendedWindows().then(windows => {
     return { timestamp: new Date().getTime(), windows }
   })
