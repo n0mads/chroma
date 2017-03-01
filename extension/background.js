@@ -24,6 +24,11 @@ function connect() {
     chrome.tabs.remove(parseInt(options.tabId))
   })
 
+  socket.on('reloadTab', function(options) {
+    console.log('Reloading tab', options)
+    chrome.tabs.reload(parseInt(options.tabId))
+  })
+
   socket.on('disconnect', function() {
     // SocketIO will automatically attempt to reconnect
     console.log("Disconnected. Auto-reconnecting...")

@@ -41,7 +41,7 @@ module.exports = class API {
     })
 
     app.get('/chrome/tabs/filter', (req, res) => {
-      const options = {
+      const options = removeNulls({
         url       : req.query.url,
         urlMatch  : req.query.urlMatch,
         title     : req.query.title,
@@ -53,7 +53,7 @@ module.exports = class API {
         audible   : parseBoolean(req.query.audible),
         incognito : parseBoolean(req.query.incognito),
         muted     : parseBoolean(req.query.muted)
-      }
+      })
 
       res.send(this.chrome.filterTabs(options))
     })
@@ -80,7 +80,7 @@ module.exports = class API {
     })
 
     app.post('/chrome/tabs/:tabId/reload', (req, res) => {
-      res.send(this.chrome.closeTab(req.params.tabId))
+      res.send(this.chrome.reloadTab(req.params.tabId))
     })
 
     // Middlware:

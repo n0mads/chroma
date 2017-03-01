@@ -41,11 +41,15 @@ module.exports = class Chrome {
   }
 
   openTab(url, options) {
-    this.events.emit('requestOpenTab', Object.assign({ url }, options))
+    this.events.emit('openTab', Object.assign({ url }, options))
   }
 
   closeTab(tabId) {
-    this.events.emit('requestCloseTab', { tabId })
+    this.events.emit('closeTab', { tabId })
+  }
+
+  reloadTab(tabId, options) {
+    this.events.emit('reloadTab', Object.assign({ tabId }, options))
   }
 
   replaceState(state) {
