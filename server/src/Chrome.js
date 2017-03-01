@@ -40,8 +40,8 @@ module.exports = class Chrome {
     return this.getTabs().filter(new TabFilter(params).asFunction())
   }
 
-  openTab(options) {
-    this.events.emit('requestOpenTab', options || {})
+  openTab(url, options) {
+    this.events.emit('requestOpenTab', Object.assign({ url }, options))
   }
 
   closeTab(tabId) {
@@ -80,7 +80,7 @@ class TabFilter {
     this.params = params
     this.criteria = []
 
-    this.addFilter('Integer', 'windowId', params.window)
+    this.addFilter('Integer', 'windowId', params.windowId)
     
     this.addFilter('String', 'url', params.url)
     this.addFilter('String', 'title', params.title)

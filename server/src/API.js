@@ -8,10 +8,13 @@ module.exports = class API {
   }
 
   configure(app) {
+    // Full overview:
+
     app.get('/chrome', (req, res) => {
       res.send(this.chrome.toObject())
     })
 
+    // Window information:
 
     app.get('/chrome/windows', (req, res) => {
       res.send(this.chrome.getWindows())
@@ -29,13 +32,10 @@ module.exports = class API {
       res.send(this.chrome.getTab(req.params.tabId))
     })
 
+    // Tab information:
 
     app.get('/chrome/tabs', (req, res) => {
       res.send(this.chrome.getTabs())
-    })
-
-    app.post('/chrome/tabs/open', (req, res) => {
-      res.send(this.chrome.openTab(req.query))
     })
 
     app.get('/chrome/tabs/filter', (req, res) => {
@@ -44,6 +44,19 @@ module.exports = class API {
 
     app.get('/chrome/tabs/:tabId', (req, res) => {
       res.send(this.chrome.getTab(req.params.tabId))
+    })
+
+    // Actions:
+
+    app.post('/chrome/tabs/open', (req, res) => {
+      const options = {
+        windowId: req.query.windowId,
+        index   : req.query.index,
+        active  : req.query.active || false,
+        pinned  : req.query.pinned
+      }
+
+      res.send(this.chrome.openTab(req.query.url, options))
     })
 
     app.post('/chrome/tabs/:tabId/close', (req, res) => {
