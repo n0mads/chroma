@@ -34,7 +34,7 @@ module.exports = class API {
       res.send(this.chrome.getTabs())
     })
 
-    app.post('/chrome/tabs', (req, res) => {
+    app.post('/chrome/tabs/open', (req, res) => {
       res.send(this.chrome.openTab(req.query))
     })
 
@@ -44,6 +44,10 @@ module.exports = class API {
 
     app.get('/chrome/tabs/:tabId', (req, res) => {
       res.send(this.chrome.getTab(req.params.tabId))
+    })
+
+    app.post('/chrome/tabs/:tabId/close', (req, res) => {
+      res.send(this.chrome.closeTab(req.params.tabId))
     })
   }
 

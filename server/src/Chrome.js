@@ -44,6 +44,10 @@ module.exports = class Chrome {
     this.events.emit('requestOpenTab', options || {})
   }
 
+  closeTab(tabId) {
+    this.events.emit('requestCloseTab', { tabId })
+  }
+
   replaceState(state) {
     this.lastUpdate = state.timestamp
     this.windowsById = {}

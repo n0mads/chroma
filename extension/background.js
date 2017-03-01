@@ -15,8 +15,11 @@ function connect() {
   })
 
   socket.on('openTab', function(options) {
-    console.log(options)
     chrome.tabs.create(options)
+  })
+
+  socket.on('closeTab', function(options) {
+    chrome.tabs.remove(parseInt(options.tabId))
   })
 
   socket.on('disconnect', function() {

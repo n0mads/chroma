@@ -25,6 +25,10 @@ module.exports = class Sockets {
         client.emit('openTab', options)
       })
 
+      this.chrome.events.on('requestCloseTab', (options) => {
+        client.emit('closeTab', options)
+      })
+
       updateTimer = setInterval(requestUpdate, 2000)
       requestUpdate()
     })
