@@ -41,7 +41,21 @@ module.exports = class API {
     })
 
     app.get('/chrome/tabs/filter', (req, res) => {
-      res.send(this.chrome.filterTabs(req.query))
+      const options = {
+        url       : req.query.url,
+        urlMatch  : req.query.urlMatch,
+        title     : req.query.title,
+        titleMatch: req.query.titleMatch,
+        status    : req.query.status,
+        windowId  : parseInteger(req.query.windowId),
+        active    : parseBoolean(req.query.active),
+        pinned    : parseBoolean(req.query.pinned),
+        audible   : parseBoolean(req.query.audible),
+        incognito : parseBoolean(req.query.incognito),
+        muted     : parseBoolean(req.query.muted)
+      }
+
+      res.send(this.chrome.filterTabs(options))
     })
 
     app.get('/chrome/tabs/:tabId', (req, res) => {
@@ -51,19 +65,21 @@ module.exports = class API {
     // Actions:
 
     app.post('/chrome/tabs/open', (req, res) => {
-      const { url, windowId, index, active, pinned } = req.query
-
       const options = removeNulls({
-        windowId: parseInteger(windowId),
-        index   : parseInteger(index),
-        active  : parseBoolean(active) || false,
-        pinned  : parseBoolean(pinned)
+        windowId: parseInteger(req.query.windowId),
+        index   : parseInteger(req.query.index),
+        active  : parseBoolean(req.query.active) || false,
+        pinned  : parseBoolean(req.query.pinned)
       })
 
-      res.send(this.chrome.openTab(url, options))
+      res.send(this.chrome.openTab(req.query.url, options))
     })
 
     app.post('/chrome/tabs/:tabId/close', (req, res) => {
+      res.send(this.chrome.closeTab(req.params.tabId))
+    })
+
+    app.post('/chrome/tabs/:tabId/reload', (req, res) => {
       res.send(this.chrome.closeTab(req.params.tabId))
     })
 

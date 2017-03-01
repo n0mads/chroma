@@ -80,50 +80,34 @@ class TabFilter {
     this.params = params
     this.criteria = []
 
-    this.addFilter('Integer', 'windowId', params.windowId)
+    this.matchExact('windowId', params.windowId)
+    this.matchExact('url', params.url)
+    this.matchExact('title', params.title)
+    this.matchExact('status', params.status)
+    this.matchExact('active', params.active)
+    this.matchExact('pinned', params.pinned)
+    this.matchExact('audible', params.audible)
+    this.matchExact('incognito', params.incognito)
+    this.matchExact('mutedInfo.muted', params.muted)
     
-    this.addFilter('String', 'url', params.url)
-    this.addFilter('String', 'title', params.title)
-    this.addFilter('String', 'status', params.status)
-    
-    this.addFilter('Regex', 'url', params.urlMatch)
-    this.addFilter('Regex', 'title', params.titleMatch)
-
-    this.addFilter('Boolean', 'active', params.active)
-    this.addFilter('Boolean', 'pinned', params.pinned)
-    this.addFilter('Boolean', 'audible', params.audible)
-    this.addFilter('Boolean', 'incognito', params.incognito)
-    this.addFilter('Boolean', 'mutedInfo.muted', params.muted)
+    this.matchRegex('url', params.urlMatch)
+    this.matchRegex('title', params.titleMatch)
 
     Object.freeze(this)
   }
 
-  matchInteger(actualValue, targetValue) {
-    return actualValue === parseInt(targetValue)
+  matchExact(property, expected) {
+    this.addFilter(property, expected, compareExact)
   }
 
-  matchString(actualValue, targetValue) {
-    return actualValue === targetValue.toString()
+  matchRegex(property, expected) {
+    this.addFilter(property, expected, compareRegex)
   }
 
-  matchRegex(actualValue, targetValue) {
-    return actualValue.match(new RegExp(targetValue))
-  }
-
-  matchBoolean(actualValue, targetValue) {
-    if (typeof targetValue === 'string') {
-      targetValue = (targetValue.toLowerCase() === 'true')
+  addFilter(property, expected, compare) {
+    if (expected != null) {
+      this.criteria.push(tab => compare(deepGet(tab, property), expected))
     }
-
-    return actualValue === (!! targetValue)
-  }
-
-  addFilter(type, property, value) {
-    if (value == null) return
-
-    this.criteria.push(
-      tab => this['match' + type](deepGet(tab, property), value)
-    )
   }
 
   apply(tab) {
@@ -133,4 +117,14 @@ class TabFilter {
   asFunction() {
     return this.apply.bind(this)
   }
+}
+
+
+function compareExact(actual, expected) {
+  return actual === expected
+}
+
+
+function compareRegex(actual, expected) {
+  return (actual.toString().match(new RegExp(expected)) != null)
 }
