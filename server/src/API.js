@@ -34,6 +34,10 @@ module.exports = class API {
       res.send(this.chrome.getTabs())
     })
 
+    app.post('/chrome/tabs', (req, res) => {
+      res.send(this.chrome.openTab(req.query))
+    })
+
     app.get('/chrome/tabs/filter', (req, res) => {
       res.send(this.chrome.filterTabs(req.query))
     })

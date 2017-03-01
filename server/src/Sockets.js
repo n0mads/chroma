@@ -21,6 +21,10 @@ module.exports = class Sockets {
         clearInterval(updateTimer)
       })
 
+      this.chrome.events.on('requestOpenTab', (options) => {
+        client.emit('openTab', options)
+      })
+
       updateTimer = setInterval(requestUpdate, 2000)
       requestUpdate()
     })

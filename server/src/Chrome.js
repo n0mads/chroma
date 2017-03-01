@@ -1,3 +1,4 @@
+const EventEmitter = require('events')
 const deepGet = require('lodash.get')
 
 const { valuesOf } = require('./utils')
@@ -8,20 +9,7 @@ module.exports = class Chrome {
     this.lastUpdate = null
     this.windowsById = null
     this.tabsById = null
-  }
-
-  replaceState(state) {
-    this.lastUpdate = state.timestamp
-    this.windowsById = {}
-    this.tabsById = {}
-
-    for (let win of state.windows) { 
-      this.windowsById[win.id] = Object.assign({}, win)
-
-      for (let tab of win.tabs) {
-        this.tabsById[tab.id] = Object.assign({}, tab)
-      }
-    }
+    this.events = new EventEmitter()
   }
 
   getWindows() {
@@ -50,6 +38,24 @@ module.exports = class Chrome {
 
   filterTabs(params) {
     return this.getTabs().filter(new TabFilter(params).asFunction())
+  }
+
+  openTab(options) {
+    this.events.emit('requestOpenTab', options || {})
+  }
+
+  replaceState(state) {
+    this.lastUpdate = state.timestamp
+    this.windowsById = {}
+    this.tabsById = {}
+
+    for (let win of state.windows) { 
+      this.windowsById[win.id] = Object.assign({}, win)
+
+      for (let tab of win.tabs) {
+        this.tabsById[tab.id] = Object.assign({}, tab)
+      }
+    }
   }
 
   toObject() {

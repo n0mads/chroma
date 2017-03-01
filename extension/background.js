@@ -1,6 +1,10 @@
 let socket
 
 
+console.log("Started")
+connect()
+
+
 function connect() {
   console.log("Connecting to server")
   socket = io.connect('http://localhost:3000')
@@ -10,18 +14,16 @@ function connect() {
     getState().then(state => socket.emit('getState:response', state))
   })
 
+  socket.on('openTab', function(options) {
+    console.log(options)
+    chrome.tabs.create(options)
+  })
+
   socket.on('disconnect', function() {
     // SocketIO will automatically attempt to reconnect
     console.log("Disconnected. Auto-reconnecting...")
   })
 }
-
-
-chrome.browserAction.onClicked.addListener(function(tab) {
-  console.log("Started")
-  connect()
-})
-
 
 
 function getState() {
