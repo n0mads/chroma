@@ -1,6 +1,8 @@
 const express = require('express')
 const httpAttach = require('http-attach')
 
+const { removeNulls, parseBoolean, parseInteger } = require('./utils')
+
 
 module.exports = class API {
   constructor(chrome) {
@@ -49,19 +51,24 @@ module.exports = class API {
     // Actions:
 
     app.post('/chrome/tabs/open', (req, res) => {
-      const options = {
-        windowId: req.query.windowId,
-        index   : req.query.index,
-        active  : req.query.active || false,
-        pinned  : req.query.pinned
-      }
+      const { url, windowId, index, active, pinned } = req.query
 
-      res.send(this.chrome.openTab(req.query.url, options))
+      const options = removeNulls({
+        windowId: parseInteger(windowId),
+        index   : parseInteger(index),
+        active  : parseBoolean(active) || false,
+        pinned  : parseBoolean(pinned)
+      })
+
+      res.send(this.chrome.openTab(url, options))
     })
 
     app.post('/chrome/tabs/:tabId/close', (req, res) => {
       res.send(this.chrome.closeTab(req.params.tabId))
     })
+
+    // Middlware:
+    app.use(logErrors)
   }
 
   attachTo(httpServer) {
@@ -70,4 +77,11 @@ module.exports = class API {
 
     httpAttach(httpServer, app)
   }
+}
+
+
+function logErrors (err, req, res, next) {
+  console.log('handling')
+  console.error(err.stack)
+  next(err)
 }
