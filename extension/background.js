@@ -7,7 +7,13 @@ connect()
 
 function connect() {
   console.log("Connecting to server")
-  socket = io.connect('http://localhost:3000')
+  socket = io.connect('http://localhost:3000', {
+    reconnection        : true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay   : 500,
+    reconnectionDelayMax: 500,
+    randomizationFactor : 0
+  })
 
   socket.on('getState', function() {
     console.log("Sending state to server")
@@ -30,8 +36,11 @@ function connect() {
   })
 
   socket.on('disconnect', function() {
-    // SocketIO will automatically attempt to reconnect
-    console.log("Disconnected. Auto-reconnecting...")
+    console.log("Disconnected")
+  })
+
+  socket.on('reconnect_attempt', function() {
+    console.log("Attempting to reconnect...")
   })
 }
 
