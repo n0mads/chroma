@@ -7,7 +7,7 @@
     "tabs"
   ],
   "background": {
-    "scripts": ["lib/socket.io.js", "background.js"],
+    "scripts": ["lib/socket.io.js", "lib/deep-diff.js", "background.js"],
     "persistent": false
   },
   "manifest_version": 2
