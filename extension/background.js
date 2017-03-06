@@ -1,4 +1,5 @@
 let socket
+let lastState = {}
 
 
 console.log("Started")
@@ -16,8 +17,7 @@ function connect() {
   })
 
   socket.on('getState', function() {
-    console.log("Sending state to server")
-    getState().then(state => socket.emit('getState:response', state))
+    getState().then(sendState)
   })
 
   socket.on('openTab', function(options) {
@@ -44,6 +44,17 @@ function connect() {
   })
 }
 
+
+function sendState(state) {
+  if(DeepDiff(state.windows, lastState.windows)) {
+    console.log("Sending state to server")
+    socket.emit('getState:response', state)
+  } else {
+    console.log('No state changes detected')
+  }
+
+  lastState = state
+}
 
 function getState() {
   return getExtendedWindows().then(windows => {
